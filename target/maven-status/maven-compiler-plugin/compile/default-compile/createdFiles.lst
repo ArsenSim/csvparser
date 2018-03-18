@@ -1,0 +1,7 @@
+com\arsensim\CsvException.class
+com\arsensim\SimpleCsv.class
+com\arsensim\SimpleCsvMapper.class
+com\arsensim\Csv.class
+com\arsensim\OrderedCsv.class
+com\arsensim\CsvRecordMapper.class
+com\arsensim\App.class
