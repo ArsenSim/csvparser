@@ -23,40 +23,48 @@
  */
 package com.arsensim;
 
-import java.util.Comparator;
+import org.junit.Test;
+
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 /**
- * This class is an ordered implementation of {@link Csv}.
- *
- * @param <T> the type to which each csv record will be mapped.
- * @author Arsen Simonean (arsensim08@gmail.com)
- * @version $Id$
- * @since 1.0
+ * This class contains tests for {@link FileCsv}.
  */
-public final class OrderedCsv<T> implements Csv<T> {
-
-    private final Csv<T> decoree;
-    private final Comparator<T> comparator;
+public class FileCsvTest {
 
     /**
-     * A constructor that expects an instance of {@link Csv} to decorate it.
-     *
-     * @param decoree    An instance of {@link Csv} which behavior is to be
-     *                   extended.
-     * @param comparator An instance of comparator to use when ordering.
+     * Tests that {@link CsvException} is thrown when the file doesn't exist.s
      */
-    public OrderedCsv(final Csv<T> decoree, final Comparator<T> comparator) {
-        this.decoree = decoree;
-        this.comparator = comparator;
+    @Test(expected = CsvException.class)
+    public void testParseNoFile() {
+        final FileCsv<ExampleOutput> parser = new FileCsv<>(
+                Paths.get("inexisting/path"),
+                ExampleOutput.class
+        );
+        parser.map();
     }
 
-    @Override
-    public List<T> map() {
-        return this.decoree.map().stream()
-                .sorted(this.comparator)
-                .collect(Collectors.toList());
+    /**
+     * Tests the happy flow of the {@link FileCsv}.
+     */
+    @Test
+    public void testParse() {
+        final FileCsv<ExampleOutput> parser = new FileCsv<>(
+                Paths.get("src/test/resources/HeadedCommaDelimitedTwoRows.csv"),
+                ExampleOutput.class
+        );
+        final List<ExampleOutput> mappedLines = parser.map();
+        assertThat(mappedLines, hasSize(2));
+        final ExampleOutput fooBar = mappedLines.get(0);
+        assertThat(fooBar.getX(), is("foo"));
+        assertThat(fooBar.getY(), is("bar"));
+        final ExampleOutput bazBuf = mappedLines.get(1);
+        assertThat(bazBuf.getX(), is("baz"));
+        assertThat(bazBuf.getY(), is("buf"));
     }
 
 }

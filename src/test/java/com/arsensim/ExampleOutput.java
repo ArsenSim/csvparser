@@ -23,40 +23,32 @@
  */
 package com.arsensim;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
- * This class is an ordered implementation of {@link Csv}.
- *
- * @param <T> the type to which each csv record will be mapped.
- * @author Arsen Simonean (arsensim08@gmail.com)
- * @version $Id$
- * @since 1.0
+ * This class is an example of the output to be used in some tests.
  */
-public final class OrderedCsv<T> implements Csv<T> {
-
-    private final Csv<T> decoree;
-    private final Comparator<T> comparator;
+public class ExampleOutput {
+    private String x;
+    private String y;
 
     /**
-     * A constructor that expects an instance of {@link Csv} to decorate it.
-     *
-     * @param decoree    An instance of {@link Csv} which behavior is to be
-     *                   extended.
-     * @param comparator An instance of comparator to use when ordering.
+     * Default constructor.
      */
-    public OrderedCsv(final Csv<T> decoree, final Comparator<T> comparator) {
-        this.decoree = decoree;
-        this.comparator = comparator;
+    public ExampleOutput() {
     }
 
-    @Override
-    public List<T> map() {
-        return this.decoree.map().stream()
-                .sorted(this.comparator)
-                .collect(Collectors.toList());
+    String getX() {
+        return x;
     }
 
+    void setX(String x) {
+        this.x = x;
+    }
+
+    protected String getY() {
+        return y;
+    }
+
+    protected void setY(String y) {
+        this.y = y;
+    }
 }
