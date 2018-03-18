@@ -15,17 +15,15 @@ public class SimpleCsvTest {
         final SimpleCsv parser = new SimpleCsv(
                 Paths.get("inexisting/path")
         );
-        parser.map(record -> {
-            throw new IllegalStateException("Method should fail before this exception");
-        });
+        parser.map();
     }
 
     @Test
     public void testParse() {
-        final SimpleCsv parser = new SimpleCsv(
+        final SimpleCsv<ExampleOutput> parser = new SimpleCsv<>(
                 Paths.get("src/test/resources/CommaDelimitedTwoRows.csv")
         );
-        final List<ExampleOutput> mappedLines = parser.map(record -> new ExampleOutput());
+        final List<ExampleOutput> mappedLines = parser.map();
         assertThat(mappedLines, hasSize(2));
     }
 
