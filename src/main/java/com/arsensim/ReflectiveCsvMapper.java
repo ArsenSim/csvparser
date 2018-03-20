@@ -23,8 +23,6 @@
  */
 package com.arsensim;
 
-import org.apache.commons.csv.CSVRecord;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -56,7 +54,7 @@ public final class ReflectiveCsvMapper<T> implements CsvMapper<T> {
     }
 
     @Override
-    public T map(final CSVRecord record) {
+    public T map(final Map<String, String> record) {
         final T resultObject = this.newEmptyResultObject();
         this.formatRecord(record).forEach((columnName, value) -> {
             final Method setterMethod = this.findSetterMethod(columnName);
@@ -68,17 +66,11 @@ public final class ReflectiveCsvMapper<T> implements CsvMapper<T> {
     /**
      * Maps the {@code CSVRecord} to a {@code Map} with keys being lower case.
      *
-     * @param record A {@code CSVRecord} to map.
+     * @param record A key value map describing csv record.
      * @return The mapped record.
      */
-    private Map<String, String> formatRecord(final CSVRecord record) {
-        final Map<String, String> initialMap = record.toMap();
-        if (initialMap.isEmpty()) {
-            throw new CsvException(
-                    String.format("Cannot use %s with a headless csv", this.getClass())
-            );
-        }
-        return initialMap.entrySet().stream()
+    private Map<String, String> formatRecord(final Map<String, String> record) {
+        return record.entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> entry.getKey().toLowerCase().replace(" ", ""),
                         Map.Entry::getValue

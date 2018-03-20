@@ -33,6 +33,7 @@ import java.util.List;
  * @version $Id$
  * @since 1.0
  */
+@FunctionalInterface
 public interface Csv<T> {
 
     /**

@@ -23,10 +23,12 @@
  */
 package com.arsensim;
 
-import org.apache.commons.csv.CSVRecord;
+import java.util.Map;
 
 /**
  * A mapper of the {@code CsvRecord}.
+ * <p>
+ * todo make T more flexible
  *
  * @param <T> The type to which the csv record will be mapped.
  * @author Arsen Simonean (arsensim08@gmail.com)
@@ -42,6 +44,6 @@ public interface CsvMapper<T> {
      * @param record CSV record to map.
      * @return An instance of {@code T}.
      */
-    T map(final CSVRecord record);
+    T map(final Map<String, String> record);
 
 }

@@ -24,12 +24,14 @@
 package com.arsensim;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -80,6 +82,8 @@ public final class FileCsv<T> implements Csv<T> {
         this.assertFileExists();
         try (final BufferedReader reader = Files.newBufferedReader(this.file)) {
             return this.format.parse(reader).getRecords().stream()
+                    .map(CSVRecord::toMap)
+                    .peek(Objects::requireNonNull)
                     .map(this.mapper::map)
                     .collect(Collectors.toList());
         } catch (final IOException e) {
@@ -87,6 +91,10 @@ public final class FileCsv<T> implements Csv<T> {
                     String.format("Exception while reading file %s", this.file),
                     e
             );
+        } catch (final NullPointerException e) {
+            // TODO have more info in exception, use validator instead.
+            // have a method that validates for nullness and emptyness of the map.
+            throw new CsvException("Could not map all the records", e);
         }
     }
 
