@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -82,8 +82,7 @@ public final class FileCsv<T> implements Csv<T> {
         this.assertFileExists();
         try (final BufferedReader reader = Files.newBufferedReader(this.file)) {
             return this.format.parse(reader).getRecords().stream()
-                    .map(CSVRecord::toMap)
-                    .peek(Objects::requireNonNull)
+                    .map(this::toMap)
                     .map(this.mapper::map)
                     .collect(Collectors.toList());
         } catch (final IOException e) {
@@ -91,11 +90,23 @@ public final class FileCsv<T> implements Csv<T> {
                     String.format("Exception while reading file %s", this.file),
                     e
             );
-        } catch (final NullPointerException e) {
-            // TODO have more info in exception, use validator instead.
-            // have a method that validates for nullness and emptyness of the map.
-            throw new CsvException("Could not map all the records", e);
         }
+    }
+
+    /**
+     * Transforms a CSV record to a {@link Map}.
+     *
+     * @param record The csv record.
+     * @return The mapped record.
+     */
+    private Map<String, String> toMap(final CSVRecord record) {
+        final Map<String, String> mappedRecord = record.toMap();
+        if (mappedRecord == null || mappedRecord.isEmpty()) {
+            throw new CsvException(
+                    String.format("Invalid record %s", record) // TODO make more meaningful
+            );
+        }
+        return mappedRecord;
     }
 
     /**
