@@ -26,24 +26,13 @@ package com.arsensim;
 import java.util.Map;
 
 /**
- * A mapper of the {@code CsvRecord}.
- * <p>
- * todo make T more flexible
+ * A record in a csv.
  *
- * @param <T> The type to which the csv record will be mapped.
- * @author Arsen Simonean (arsensim08@gmail.com)
- * @version $Id$
- * @since 1.0
+ * @param <I> the type of header. Might be String, might be Integer.
  */
-@FunctionalInterface
-public interface CsvMapper<T> {
+public interface CsvRecord<I> {
 
-    /**
-     * Maps the provided csv record to a desired output object.
-     *
-     * @param record CSV record to map.
-     * @return An instance of {@code T}.
-     */
-    T map(final Map<String, String> record);
+    String get(I column);
 
+    Map<I, String> toMap();
 }

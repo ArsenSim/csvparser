@@ -1,7 +1,6 @@
 # csvparser
-Wrapper over Apache Commons CSV
 
-TODO format
+TODO 
 
 =====================
 
@@ -16,6 +15,3 @@ one uncecked exception thrown
 lambda friendly
 
 =============================
-
-This library uses https://commons.apache.org/proper/commons-csv/ and 
-provides alternative API.

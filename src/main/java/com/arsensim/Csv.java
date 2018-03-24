@@ -25,22 +25,9 @@ package com.arsensim;
 
 import java.util.List;
 
-/**
- * A csv resource.
- *
- * @param <T> the type to which each csv record will be mapped.
- * @author Arsen Simonean (arsensim08@gmail.com)
- * @version $Id$
- * @since 1.0
- */
 @FunctionalInterface
-public interface Csv<T> {
+public interface Csv<I, E> {
 
-    /**
-     * Maps the content of this {@code Csv} to the desired output type.
-     *
-     * @return A list of {@code T}.
-     */
-    List<T> map();
+    List<E> map(CsvRecordMapper<I, ? extends E> mapper);
 
 }

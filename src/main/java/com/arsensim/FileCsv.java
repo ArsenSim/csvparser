@@ -23,67 +23,53 @@
  */
 package com.arsensim;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * This class is an implementation of {@link Csv} that parses a csv file as
  * resource. todo make generic type more flexible
  *
- * @param <T> the type to which each csv record will be mapped.
+ * @param <E> the type to which each csv record will be mapped.
  * @author Arsen Simonean (arsensim08@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public final class FileCsv<T> implements Csv<T> {
+public final class FileCsv<E> implements Csv<Integer, E> {
 
     private final Path file;
-    private final CsvMapper<T> mapper;
-    private final CSVFormat format;
+    private final String delimiter;
 
-    /**
-     * A convenience constructor that uses {@link ReflectiveCsvMapper} class
-     * to map output.
-     *
-     * @param file   The CSV file.
-     * @param output The class of the output desired.
-     */
-    public FileCsv(final Path file, final Class<T> output) {
-        this(
-                file,
-                new ReflectiveCsvMapper<>(output),
-                CSVFormat.DEFAULT.withFirstRecordAsHeader()
-        );
-    }
 
-    /**
-     * Primary constructor.
-     *
-     * @param file   The CSV file.
-     * @param mapper The mapperto map the output to instances of {@code T}.
-     * @param format The {@link CSVFormat} of the resource.
-     */
-    public FileCsv(final Path file, final CsvMapper<T> mapper, final CSVFormat format) {
+    public FileCsv(final Path file, final String delimiter) {
         this.file = file;
-        this.mapper = mapper;
-        this.format = format;
+        this.delimiter = delimiter;
     }
 
     @Override
-    public List<T> map() {
+    public List<E> map(final CsvRecordMapper<Integer, ? extends E> mapper) {
         this.assertFileExists();
         try (final BufferedReader reader = Files.newBufferedReader(this.file)) {
-            return this.format.parse(reader).getRecords().stream()
-                    .map(this::toMap)
-                    .map(this.mapper::map)
+            final List<String[]> rows = reader.lines()
+                    .map(line -> line.split(this.delimiter))
+                    .collect(Collectors.toList());
+            final ArrayList<CsvRecord<Integer>> records = new ArrayList<>();
+            // todo validate same size
+            for (final String[] row : rows) {
+                final HashMap<Integer, String> data = new HashMap<>();
+                for (int i = 0; i < row.length; i++) {
+                    data.put(i, row[i]);
+                }
+                records.add(
+                        new SimpleCsvRecord<>(data)
+                );
+            }
+            return records.stream()
+                    .map(mapper::map)
                     .collect(Collectors.toList());
         } catch (final IOException e) {
             throw new CsvException(
@@ -91,22 +77,6 @@ public final class FileCsv<T> implements Csv<T> {
                     e
             );
         }
-    }
-
-    /**
-     * Transforms a CSV record to a {@link Map}.
-     *
-     * @param record The csv record.
-     * @return The mapped record.
-     */
-    private Map<String, String> toMap(final CSVRecord record) {
-        final Map<String, String> mappedRecord = record.toMap();
-        if (mappedRecord == null || mappedRecord.isEmpty()) {
-            throw new CsvException(
-                    String.format("Invalid record %s", record) // TODO make more meaningful
-            );
-        }
-        return mappedRecord;
     }
 
     /**

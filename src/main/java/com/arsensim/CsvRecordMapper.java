@@ -23,19 +23,25 @@
  */
 package com.arsensim;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
-
 /**
- * This class contains tests for {@link ReflectiveCsvMapper}.
+ * A mapper of the {@code CsvRecord}.
+ * <p>
+ * todo make E more flexible
+ *
+ * @param <E> The type to which the csv record will be mapped.
+ * @author Arsen Simonean (arsensim08@gmail.com)
+ * @version $Id$
+ * @since 1.0
  */
-public class ReflectiveCsvMapperTest {
+@FunctionalInterface
+public interface CsvRecordMapper<I, E> {
 
-    @Test
-    public void map() {
-        // todo
-        assertTrue(true);
-    }
+    /**
+     * Maps the provided csv record to a desired output object.
+     *
+     * @param record CSV record to map.
+     * @return An instance of {@code E}.
+     */
+    E map(final CsvRecord<I> record);
 
 }

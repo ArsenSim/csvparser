@@ -30,18 +30,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * This class is an implementation of {@link CsvMapper} that creates a
+ * This class is an implementation of {@link CsvRecordMapper} that creates a
  * new object of {@code T} and populates it with data using reflective
  * operations. Setter methods are used.
  *
- * @param <T> the type to which each csv record will be mapped.
+ * @param <E> the type to which each csv record will be mapped.
  * @author Arsen Simonean (arsensim08@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public final class ReflectiveCsvMapper<T> implements CsvMapper<T> {
+public final class ReflectiveCsvRecordMapper<E> implements CsvRecordMapper<String, E> {
 
-    private final Class<T> clazz;
+    private final Class<E> clazz;
 
     /**
      * A constructor that expects as a parameter the target class of mapped
@@ -49,13 +49,13 @@ public final class ReflectiveCsvMapper<T> implements CsvMapper<T> {
      *
      * @param clazz The class to which the output will be mapped.
      */
-    public ReflectiveCsvMapper(final Class<T> clazz) {
+    public ReflectiveCsvRecordMapper(final Class<E> clazz) {
         this.clazz = clazz;
     }
 
     @Override
-    public T map(final Map<String, String> record) {
-        final T resultObject = this.newEmptyResultObject();
+    public E map(final CsvRecord<String> record) {
+        final E resultObject = this.newEmptyResultObject();
         this.formatRecord(record).forEach((columnName, value) -> {
             final Method setterMethod = this.findSetterMethod(columnName);
             this.setValue(setterMethod, resultObject, value);
@@ -69,8 +69,8 @@ public final class ReflectiveCsvMapper<T> implements CsvMapper<T> {
      * @param record A key value map describing csv record.
      * @return The mapped record.
      */
-    private Map<String, String> formatRecord(final Map<String, String> record) {
-        return record.entrySet().stream()
+    private Map<String, String> formatRecord(final CsvRecord<String> record) {
+        return record.toMap().entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> entry.getKey().toLowerCase().replace(" ", ""),
                         Map.Entry::getValue
@@ -107,7 +107,7 @@ public final class ReflectiveCsvMapper<T> implements CsvMapper<T> {
      *
      * @return The newly created instance of {@code T}.
      */
-    private T newEmptyResultObject() {
+    private E newEmptyResultObject() {
         try {
             return this.clazz.newInstance();
         } catch (IllegalAccessException | InstantiationException e) {
@@ -127,7 +127,7 @@ public final class ReflectiveCsvMapper<T> implements CsvMapper<T> {
      * @param object The object on which to invoce the setter {@code Method}.
      * @param value  The value which to set on the object.
      */
-    private void setValue(final Method setter, final T object, final String value) {
+    private void setValue(final Method setter, final E object, final String value) {
         try {
             setter.invoke(object, value);
         } catch (IllegalAccessException | InvocationTargetException e) {
